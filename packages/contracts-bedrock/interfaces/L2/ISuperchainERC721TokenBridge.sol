@@ -21,7 +21,7 @@ interface ISuperchainERC721TokenBridge {
     /// @param tokenId ID of the token sent.
     /// @param destination Chain ID of the destination chain.
     event SendERC721(
-        address indexed token, address indexed from, address indexed to, uint256 indexed tokenId, uint256 destination
+        address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 destination
     );
 
     /// @notice Emitted whenever a token is successfully relayed on this chain.
@@ -31,7 +31,7 @@ interface ISuperchainERC721TokenBridge {
     /// @param tokenId ID of the token relayed.
     /// @param source Chain ID of the source chain.
     event RelayERC721(
-        address indexed token, address indexed from, address indexed to, uint256 indexed tokenId, uint256 source
+        address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 source
     );
 
     /// @notice Sends a token to a target address on another chain.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 // Libraries
 import { Predeploys } from "src/libraries/Predeploys.sol";
@@ -40,9 +40,7 @@ contract SuperchainERC721TokenBridge {
     /// @param to Address of the recipient.
     /// @param tokenId ID of the token relayed.
     /// @param source Chain ID of the source chain.
-    event RelayERC721(
-        address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 source
-    );
+    event RelayERC721(address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 source);
 
     /// @notice Address of the L2ToL2CrossDomainMessenger Predeploy.
     address internal constant MESSENGER = Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER;
