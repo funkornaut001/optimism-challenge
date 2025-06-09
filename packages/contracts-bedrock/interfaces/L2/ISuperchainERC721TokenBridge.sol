@@ -8,9 +8,6 @@ interface ISuperchainERC721TokenBridge {
     /// SuperchainERC721TokenBridge.
     error InvalidCrossDomainSender();
 
-    /// @notice Thrown when attempting to use a token that does not implement the ERC7802 interface.
-    error InvalidERC7802();
-
     /// @notice Thrown when attempting to send a token that doesn't exist or isn't owned by sender.
     error InvalidTokenOwnership();
 
