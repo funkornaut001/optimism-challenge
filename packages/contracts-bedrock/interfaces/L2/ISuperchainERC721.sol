@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 /// @title ISuperchainERC721
 /// @notice Interface for SuperchainERC721 tokens that can be transferred across chains.
-interface ISuperchainERC721 {
+interface ISuperchainERC721 is IERC721 {
     /// @notice Emitted when a token is minted via cross-chain transfer.
     /// @param to Address receiving the token.
     /// @param tokenId ID of the token minted.
@@ -16,10 +18,25 @@ interface ISuperchainERC721 {
     /// @param caller Address that initiated the cross-chain burn (should be bridge).
     event CrosschainBurn(address indexed from, uint256 indexed tokenId, address indexed caller);
 
-    /// @notice Returns the current owner of `tokenId` token.
-    /// @param tokenId The token to query the owner of.
-    /// @return owner The owner of the token.
-    function ownerOf(uint256 tokenId) external view returns (address owner);
+    error Unauthorized();
+
+    /// @notice Semantic version.
+    /// @custom:semver 1.0.0
+    function version() external view returns (string memory);
+
+    function name() external view returns (string memory);
+
+    function setApprovalForAll(address operator, bool approved) external;
+
+    function getApproved(uint256 tokenId) external view returns (address);
+
+    function symbol() external view returns (string memory);
+
+    function balanceOf(address owner) external view returns (uint256);
+
+    function ownerOf(uint256 tokenId) external view returns (address);
+
+    function tokenURI(uint256 tokenId) external view returns (string memory);
 
     /// @notice Mints a token to a given address. Only callable by the bridge.
     /// @param _to The address to mint the token to.
