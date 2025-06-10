@@ -12,7 +12,6 @@ import { Unauthorized, ZeroAddress } from "src/libraries/errors/CommonErrors.sol
 import { SuperchainERC721TokenBridge } from "src/L2/SuperchainERC721TokenBridge.sol";
 
 // Interfaces
-import { ISuperchainERC721 } from "interfaces/L2/ISuperchainERC721.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IL2ToL2CrossDomainMessenger } from "interfaces/L2/IL2ToL2CrossDomainMessenger.sol";
 

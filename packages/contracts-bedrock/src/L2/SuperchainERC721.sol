@@ -9,9 +9,7 @@ import { Predeploys } from "src/libraries/Predeploys.sol";
 import { Unauthorized } from "src/libraries/errors/CommonErrors.sol";
 
 // Interfaces
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ISemver } from "interfaces/universal/ISemver.sol";
-import { IERC165 } from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
 /// @title SuperchainERC721
 /// @notice A standard ERC721 extension implementing cross-chain functionality for NFT
@@ -29,10 +27,6 @@ abstract contract SuperchainERC721 is ERC721, ISemver {
     /// @param tokenId ID of the token burned.
     /// @param caller Address that initiated the cross-chain burn (should be bridge).
     event CrosschainBurn(address indexed from, uint256 indexed tokenId, address indexed caller);
-
-    /// @param _name ERC721 name
-    /// @param _symbol ERC721 symbol
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
     /// @notice Semantic version.
     /// @custom:semver 1.0.0
@@ -60,11 +54,5 @@ abstract contract SuperchainERC721 is ERC721, ISemver {
         _burn(_tokenId);
 
         emit CrosschainBurn(_from, _tokenId, msg.sender);
-    }
-
-    /// @inheritdoc IERC165
-    function supportsInterface(bytes4 _interfaceId) public view virtual override returns (bool) {
-        return _interfaceId == type(IERC721).interfaceId || _interfaceId == type(IERC165).interfaceId
-            || super.supportsInterface(_interfaceId);
     }
 }

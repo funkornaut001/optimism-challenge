@@ -7,7 +7,6 @@ import { ZeroAddress, Unauthorized } from "src/libraries/errors/CommonErrors.sol
 
 // Interfaces
 import { ISuperchainERC721 } from "interfaces/L2/ISuperchainERC721.sol";
-import { IERC165 } from "interfaces/L2/IERC7802.sol";
 import { IL2ToL2CrossDomainMessenger } from "interfaces/L2/IL2ToL2CrossDomainMessenger.sol";
 
 /// @custom:proxied true

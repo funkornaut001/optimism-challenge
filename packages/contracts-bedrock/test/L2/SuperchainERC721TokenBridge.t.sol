@@ -12,7 +12,6 @@ import { Unauthorized, ZeroAddress } from "src/libraries/errors/CommonErrors.sol
 // Target contract
 import { SuperchainERC721TokenBridge } from "src/L2/SuperchainERC721TokenBridge.sol";
 import { ISuperchainERC721 } from "interfaces/L2/ISuperchainERC721.sol";
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { MockSuperchainERC721Implementation } from "test/mocks/SuperchainERC721Implementation.sol";
 
 /// @title SuperchainERC721TokenBridgeTest
@@ -26,9 +25,7 @@ contract SuperchainERC721TokenBridgeTest is Test {
         address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 destination
     );
 
-    event RelayERC721(
-        address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 source
-    );
+    event RelayERC721(address indexed token, address indexed from, address indexed to, uint256 tokenId, uint256 source);
 
     ISuperchainERC721 public superchainERC721;
     SuperchainERC721TokenBridge public superchainERC721TokenBridge;
@@ -43,7 +40,8 @@ contract SuperchainERC721TokenBridgeTest is Test {
     function setUp() public {
         vm.etch(Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE, address(new SuperchainERC721TokenBridge()).code);
         superchainERC721TokenBridge = SuperchainERC721TokenBridge(Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE);
-        superchainERC721 = ISuperchainERC721(address(new MockSuperchainERC721Implementation("SuperchainERC721", "SCE721")));
+        superchainERC721 =
+            ISuperchainERC721(address(new MockSuperchainERC721Implementation("SuperchainERC721", "SCE721", alice)));
     }
 
     /// @notice Helper function to setup a mock and expect a call to it.
@@ -68,11 +66,13 @@ contract SuperchainERC721TokenBridgeTest is Test {
         address _to,
         uint256 _tokenId,
         uint256 _chainId
-    ) public {
+    )
+        public
+    {
         vm.assume(_to != ZERO_ADDRESS);
         vm.assume(_sender != ZERO_ADDRESS);
 
-        // Mint token to alice (not _sender)
+        // Mint token to alice (not _sender) to avoid invalid tokenId revert
         MockSuperchainERC721Implementation(address(superchainERC721)).mint(alice, _tokenId);
 
         // Expect the revert with `InvalidTokenOwnership` selector
@@ -83,14 +83,17 @@ contract SuperchainERC721TokenBridgeTest is Test {
         superchainERC721TokenBridge.sendERC721(address(superchainERC721), _to, _tokenId, _chainId);
     }
 
-    /// @notice Tests the `sendERC721` function burns the sender token, sends the message, and emits the `SendERC721` event.
+    /// @notice Tests the `sendERC721` function burns the sender token, sends the message, and emits the `SendERC721`
+    /// event.
     function testFuzz_sendERC721_succeeds(
         address _sender,
         address _to,
         uint256 _tokenId,
         uint256 _chainId,
         bytes32 _msgHash
-    ) external {
+    )
+        external
+    {
         // Ensure `_sender` and `_to` are not the zero address
         vm.assume(_sender != ZERO_ADDRESS);
         vm.assume(_to != ZERO_ADDRESS);
@@ -110,14 +113,12 @@ contract SuperchainERC721TokenBridgeTest is Test {
         emit SendERC721(address(superchainERC721), _sender, _to, _tokenId, _chainId);
 
         // Mock the call over the `sendMessage` function and expect it to be called properly
-        bytes memory _message = abi.encodeCall(
-            superchainERC721TokenBridge.relayERC721, (address(superchainERC721), _sender, _to, _tokenId)
-        );
+        bytes memory _message =
+            abi.encodeCall(superchainERC721TokenBridge.relayERC721, (address(superchainERC721), _sender, _to, _tokenId));
         _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(
-                IL2ToL2CrossDomainMessenger.sendMessage,
-                (_chainId, address(superchainERC721TokenBridge), _message)
+                IL2ToL2CrossDomainMessenger.sendMessage, (_chainId, address(superchainERC721TokenBridge), _message)
             ),
             abi.encode(_msgHash)
         );
@@ -141,7 +142,9 @@ contract SuperchainERC721TokenBridgeTest is Test {
         address _caller,
         address _to,
         uint256 _tokenId
-    ) public {
+    )
+        public
+    {
         // Ensure the caller is not the messenger
         vm.assume(_caller != Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
 
@@ -153,14 +156,17 @@ contract SuperchainERC721TokenBridgeTest is Test {
         superchainERC721TokenBridge.relayERC721(_token, _caller, _to, _tokenId);
     }
 
-    /// @notice Tests the `relayERC721` function reverts when the `crossDomainMessageSender` that sent the message is not
+    /// @notice Tests the `relayERC721` function reverts when the `crossDomainMessageSender` that sent the message is
+    /// not
     /// the same SuperchainERC721TokenBridge.
     function testFuzz_relayERC721_notCrossDomainSender_reverts(
         address _crossDomainMessageSender,
         uint256 _source,
         address _to,
         uint256 _tokenId
-    ) public {
+    )
+        public
+    {
         vm.assume(_crossDomainMessageSender != address(superchainERC721TokenBridge));
 
         // Mock the call over the `crossDomainMessageContext` function setting a wrong sender
@@ -175,9 +181,7 @@ contract SuperchainERC721TokenBridgeTest is Test {
 
         // Call the `relayERC721` function with the sender caller
         vm.prank(Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
-        superchainERC721TokenBridge.relayERC721(
-            address(superchainERC721), _crossDomainMessageSender, _to, _tokenId
-        );
+        superchainERC721TokenBridge.relayERC721(address(superchainERC721), _crossDomainMessageSender, _to, _tokenId);
     }
 
     /// @notice Tests the `relayERC721` mints the token and emits the `RelayERC721` event.

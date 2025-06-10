@@ -8,12 +8,10 @@ import { Test } from "forge-std/Test.sol";
 import { Predeploys } from "src/libraries/Predeploys.sol";
 import { Unauthorized } from "src/libraries/errors/CommonErrors.sol";
 
-
 // Target contract
 import { SuperchainERC721 } from "src/L2/SuperchainERC721.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC165 } from "@openzeppelin/contracts/interfaces/IERC165.sol";
-import { ISuperchainERC721 } from "interfaces/L2/ISuperchainERC721.sol";
 import { MockSuperchainERC721Implementation } from "test/mocks/SuperchainERC721Implementation.sol";
 
 /// @title SuperchainERC721Test
@@ -28,7 +26,7 @@ contract SuperchainERC721Test is Test {
 
     /// @notice Sets up the test suite.
     function setUp() public {
-        superchainERC721 = new MockSuperchainERC721Implementation("SuperchainERC721", "SCE721");
+        superchainERC721 = new MockSuperchainERC721Implementation("SuperchainERC721", "SCE721", alice);
     }
 
     /// @notice Helper function to setup a mock and expect a call to it.
