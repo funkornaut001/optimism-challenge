@@ -239,7 +239,7 @@ contract SuperchainERC721Integration is Test {
     }
 
     /// @notice Test multiple token transfers
-    function test_multipleTransfers_succeed() public {
+    function test_multipleTransfers_succeeds() public {
         uint256[] memory tokenIds = new uint256[](3);
         tokenIds[0] = 1;
         tokenIds[1] = 2;
@@ -253,7 +253,9 @@ contract SuperchainERC721Integration is Test {
             // Mock the L2ToL2CrossDomainMessenger for sendMessage calls
             vm.mockCall(
                 Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
-                abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
+                abi.encodeCall(
+                    IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)
+                ),
                 abi.encode(keccak256("mock_message_hash"))
             );
 
@@ -292,7 +294,7 @@ contract SuperchainERC721Integration is Test {
     }
 
     /// @notice Test that bridge integrates properly with different SuperchainERC721 implementations
-    function test_differentNFTContracts_succeed() public {
+    function test_differentNFTContracts_succeeds() public {
         // Deploy a second NFT contract
         MockSuperchainERC721Implementation testNFT2 = new MockSuperchainERC721Implementation("TestNFT2", "TNFT2", alice);
         testNFT2.mint(alice, 1);
