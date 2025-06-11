@@ -215,7 +215,7 @@ contract SuperchainERC721Integration is Test {
     }
 
     /// @notice Test that SuperchainERC721 only allows bridge to mint/burn
-    function test_superchainERC721_bridgeOnlyAccess() public {
+    function test_superchainERC721_bridgeOnlyAccess_works() public {
         uint256 tokenId = 100;
 
         // Direct calls to crosschainMint/crosschainBurn should fail

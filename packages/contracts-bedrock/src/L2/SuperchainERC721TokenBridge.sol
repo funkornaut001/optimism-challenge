@@ -67,7 +67,9 @@ contract SuperchainERC721TokenBridge {
         if (_to == address(0)) revert ZeroAddress();
 
         // Verify the sender owns the token
-        if (ISuperchainERC721(_token).ownerOf(_tokenId) != msg.sender) revert SuperchainERC721TokenBridge_InvalidTokenOwnership();
+        if (ISuperchainERC721(_token).ownerOf(_tokenId) != msg.sender) {
+            revert SuperchainERC721TokenBridge_InvalidTokenOwnership();
+        }
 
         ISuperchainERC721(_token).crosschainBurn(msg.sender, _tokenId);
 

@@ -150,12 +150,12 @@
   },
   {
     "inputs": [],
-    "name": "InvalidCrossDomainSender",
+    "name": "SuperchainERC721TokenBridge_InvalidCrossDomainSender",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidTokenOwnership",
+    "name": "SuperchainERC721TokenBridge_InvalidTokenOwnership",
     "type": "error"
   },
   {
