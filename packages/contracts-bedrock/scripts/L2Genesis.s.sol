@@ -229,6 +229,12 @@ contract L2Genesis is Script {
         if (_input.useInterop) {
             setCrossL2Inbox(); // 22
             setL2ToL2CrossDomainMessenger(); // 23
+            setETHLiquidity(); // 24
+            setSuperchainETHBridge(); // 24
+            setOptimismSuperchainERC20Factory(); // 26
+            setOptimismSuperchainERC20Beacon(); // 27
+            setSuperchainTokenBridge(); // 28
+            setSuperchainERC721TokenBridge(); // 29
         }
     }
 
@@ -536,6 +542,12 @@ contract L2Genesis is Script {
     ///         This contract has no initializer.
     function setSuperchainTokenBridge() internal {
         _setImplementationCode(Predeploys.SUPERCHAIN_TOKEN_BRIDGE);
+    }
+
+    /// @notice This predeploy is following the safety invariant #1.
+    ///         This contract has no initializer.
+    function setSuperchainERC721TokenBridge() internal {
+        _setImplementationCode(Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE);
     }
 
     /// @notice Sets all the preinstalls.
