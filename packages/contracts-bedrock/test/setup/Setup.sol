@@ -350,6 +350,7 @@ contract Setup {
         labelPredeploy(Predeploys.OPTIMISM_SUPERCHAIN_ERC20_FACTORY);
         labelPredeploy(Predeploys.OPTIMISM_SUPERCHAIN_ERC20_BEACON);
         labelPredeploy(Predeploys.SUPERCHAIN_TOKEN_BRIDGE);
+        labelPredeploy(Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE);
 
         // L2 Preinstalls
         labelPreinstall(Preinstalls.MultiCall3);
