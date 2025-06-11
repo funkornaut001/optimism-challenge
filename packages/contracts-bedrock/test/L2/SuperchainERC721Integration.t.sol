@@ -64,6 +64,12 @@ contract SuperchainERC721Integration is Test {
         vm.deal(bob, 1 ether);
     }
 
+    /// @notice Helper function to setup a mock and expect a call to it.
+    function _mockAndExpect(address _receiver, bytes memory _calldata, bytes memory _returned) internal {
+        vm.mockCall(_receiver, _calldata, _returned);
+        vm.expectCall(_receiver, _calldata);
+    }
+
     /// @notice Test basic setup and deployment
     function test_setup_succeeds() public view {
         assertEq(address(bridge721), Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE);
@@ -80,7 +86,7 @@ contract SuperchainERC721Integration is Test {
         bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenId));
 
         // Mock the L2ToL2CrossDomainMessenger for the sendMessage call with the correct parameters
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
@@ -113,7 +119,7 @@ contract SuperchainERC721Integration is Test {
         uint256 tokenId = 42;
 
         // Mock the L2ToL2CrossDomainMessenger to simulate cross-chain message
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.crossDomainMessageContext, ()),
             abi.encode(address(bridge721), SOURCE_CHAIN_ID)
@@ -140,7 +146,7 @@ contract SuperchainERC721Integration is Test {
         bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenId));
 
         // Mock the L2ToL2CrossDomainMessenger for sendMessage
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
@@ -155,7 +161,7 @@ contract SuperchainERC721Integration is Test {
         IERC721(testNFT).ownerOf(tokenId);
 
         // Step 2: Simulate message relay on destination chain
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.crossDomainMessageContext, ()),
             abi.encode(address(bridge721), SOURCE_CHAIN_ID)
@@ -203,7 +209,7 @@ contract SuperchainERC721Integration is Test {
         uint256 tokenId = 42;
 
         // Mock messenger to return different sender
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.crossDomainMessageContext, ()),
             abi.encode(alice, SOURCE_CHAIN_ID) // alice instead of bridge
@@ -251,7 +257,7 @@ contract SuperchainERC721Integration is Test {
             bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenIds[i]));
 
             // Mock the L2ToL2CrossDomainMessenger for sendMessage calls
-            vm.mockCall(
+            _mockAndExpect(
                 Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
                 abi.encodeCall(
                     IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)
@@ -273,7 +279,7 @@ contract SuperchainERC721Integration is Test {
         assertEq(IERC721(testNFT).balanceOf(alice), 2);
 
         // Simulate relaying all tokens to bob
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.crossDomainMessageContext, ()),
             abi.encode(address(bridge721), SOURCE_CHAIN_ID)
@@ -303,7 +309,7 @@ contract SuperchainERC721Integration is Test {
         bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT2), alice, bob, 1));
 
         // Mock the L2ToL2CrossDomainMessenger
-        vm.mockCall(
+        _mockAndExpect(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
             abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
