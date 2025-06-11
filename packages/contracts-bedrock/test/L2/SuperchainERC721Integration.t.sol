@@ -76,10 +76,13 @@ contract SuperchainERC721Integration is Test {
     function test_sendERC721_succeeds() public {
         uint256 tokenId = 1;
 
-        // Mock the L2ToL2CrossDomainMessenger for the sendMessage call
+        // Create the message that the bridge will send - this is the encoded relayERC721 call
+        bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenId));
+
+        // Mock the L2ToL2CrossDomainMessenger for the sendMessage call with the correct parameters
         vm.mockCall(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
-            abi.encodeWithSignature("sendMessage(uint256,address,bytes)"),
+            abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
         );
 
@@ -95,7 +98,7 @@ contract SuperchainERC721Integration is Test {
         bytes32 msgHash = bridge721.sendERC721(address(testNFT), bob, tokenId, DESTINATION_CHAIN_ID);
 
         // Verify token was burned (no longer exists)
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         IERC721(testNFT).ownerOf(tokenId);
 
         // Verify message hash was returned
@@ -133,10 +136,13 @@ contract SuperchainERC721Integration is Test {
     function test_crossChainTransferCycle_succeeds() public {
         uint256 tokenId = 3;
 
+        // Create the message that the bridge will send
+        bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenId));
+
         // Mock the L2ToL2CrossDomainMessenger for sendMessage
         vm.mockCall(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
-            abi.encodeWithSignature("sendMessage(uint256,address,bytes)"),
+            abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
         );
 
@@ -145,7 +151,7 @@ contract SuperchainERC721Integration is Test {
         bytes32 msgHash = bridge721.sendERC721(address(testNFT), bob, tokenId, DESTINATION_CHAIN_ID);
 
         // Verify token was burned
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         IERC721(testNFT).ownerOf(tokenId);
 
         // Step 2: Simulate message relay on destination chain
@@ -169,7 +175,7 @@ contract SuperchainERC721Integration is Test {
         uint256 tokenId = 1;
 
         // Bob tries to send alice's token - should revert with InvalidTokenOwnership
-        vm.expectRevert(SuperchainERC721TokenBridge.InvalidTokenOwnership.selector);
+        vm.expectRevert(SuperchainERC721TokenBridge.SuperchainERC721TokenBridge_InvalidTokenOwnership.selector);
         vm.prank(bob);
         bridge721.sendERC721(address(testNFT), alice, tokenId, DESTINATION_CHAIN_ID);
     }
@@ -203,7 +209,7 @@ contract SuperchainERC721Integration is Test {
             abi.encode(alice, SOURCE_CHAIN_ID) // alice instead of bridge
         );
 
-        vm.expectRevert(SuperchainERC721TokenBridge.InvalidCrossDomainSender.selector);
+        vm.expectRevert(SuperchainERC721TokenBridge.SuperchainERC721TokenBridge_InvalidCrossDomainSender.selector);
         vm.prank(Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
         bridge721.relayERC721(address(testNFT), alice, bob, tokenId);
     }
@@ -228,7 +234,7 @@ contract SuperchainERC721Integration is Test {
 
         vm.prank(Predeploys.SUPERCHAIN_ERC721_TOKEN_BRIDGE);
         testNFT.crosschainBurn(alice, tokenId);
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         IERC721(testNFT).ownerOf(tokenId);
     }
 
@@ -239,22 +245,25 @@ contract SuperchainERC721Integration is Test {
         tokenIds[1] = 2;
         tokenIds[2] = 3;
 
-        // Mock the L2ToL2CrossDomainMessenger for sendMessage calls
-        vm.mockCall(
-            Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
-            abi.encodeWithSignature("sendMessage(uint256,address,bytes)"),
-            abi.encode(keccak256("mock_message_hash"))
-        );
-
         // Send multiple tokens
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            // Create the message for each token
+            bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT), alice, bob, tokenIds[i]));
+
+            // Mock the L2ToL2CrossDomainMessenger for sendMessage calls
+            vm.mockCall(
+                Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
+                abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
+                abi.encode(keccak256("mock_message_hash"))
+            );
+
             vm.prank(alice);
             bridge721.sendERC721(address(testNFT), bob, tokenIds[i], DESTINATION_CHAIN_ID);
         }
 
         // Verify all tokens were burned
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            vm.expectRevert();
+            vm.expectRevert("ERC721: invalid token ID");
             IERC721(testNFT).ownerOf(tokenIds[i]);
         }
 
@@ -288,10 +297,13 @@ contract SuperchainERC721Integration is Test {
         MockSuperchainERC721Implementation testNFT2 = new MockSuperchainERC721Implementation("TestNFT2", "TNFT2", alice);
         testNFT2.mint(alice, 1);
 
+        // Create the message for the second NFT contract
+        bytes memory message = abi.encodeCall(bridge721.relayERC721, (address(testNFT2), alice, bob, 1));
+
         // Mock the L2ToL2CrossDomainMessenger
         vm.mockCall(
             Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER,
-            abi.encodeWithSignature("sendMessage(uint256,address,bytes)"),
+            abi.encodeCall(IL2ToL2CrossDomainMessenger.sendMessage, (DESTINATION_CHAIN_ID, address(bridge721), message)),
             abi.encode(keccak256("mock_message_hash"))
         );
 
@@ -300,7 +312,7 @@ contract SuperchainERC721Integration is Test {
         bridge721.sendERC721(address(testNFT2), bob, 1, DESTINATION_CHAIN_ID);
 
         // Verify token was burned from the second contract
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         IERC721(testNFT2).ownerOf(1);
 
         // Original NFT should be unaffected

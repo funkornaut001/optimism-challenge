@@ -18,10 +18,10 @@ import { IL2ToL2CrossDomainMessenger } from "interfaces/L2/IL2ToL2CrossDomainMes
 contract SuperchainERC721TokenBridge {
     /// @notice Thrown when attempting to relay a message and the cross domain message sender is not the
     /// SuperchainERC721TokenBridge.
-    error InvalidCrossDomainSender();
+    error SuperchainERC721TokenBridge_InvalidCrossDomainSender();
 
     /// @notice Thrown when attempting to send a token that doesn't exist or isn't owned by sender.
-    error InvalidTokenOwnership();
+    error SuperchainERC721TokenBridge_InvalidTokenOwnership();
 
     /// @notice Emitted when a token is sent from one chain to another.
     /// @param token Address of the token sent.
@@ -67,7 +67,7 @@ contract SuperchainERC721TokenBridge {
         if (_to == address(0)) revert ZeroAddress();
 
         // Verify the sender owns the token
-        if (ISuperchainERC721(_token).ownerOf(_tokenId) != msg.sender) revert InvalidTokenOwnership();
+        if (ISuperchainERC721(_token).ownerOf(_tokenId) != msg.sender) revert SuperchainERC721TokenBridge_InvalidTokenOwnership();
 
         ISuperchainERC721(_token).crosschainBurn(msg.sender, _tokenId);
 
@@ -89,7 +89,7 @@ contract SuperchainERC721TokenBridge {
         (address crossDomainMessageSender, uint256 source) =
             IL2ToL2CrossDomainMessenger(MESSENGER).crossDomainMessageContext();
 
-        if (crossDomainMessageSender != address(this)) revert InvalidCrossDomainSender();
+        if (crossDomainMessageSender != address(this)) revert SuperchainERC721TokenBridge_InvalidCrossDomainSender();
 
         ISuperchainERC721(_token).crosschainMint(_to, _tokenId);
 

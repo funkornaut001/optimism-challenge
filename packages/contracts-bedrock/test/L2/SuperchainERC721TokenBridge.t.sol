@@ -76,7 +76,7 @@ contract SuperchainERC721TokenBridgeTest is Test {
         MockSuperchainERC721Implementation(address(superchainERC721)).mint(alice, _tokenId);
 
         // Expect the revert with `InvalidTokenOwnership` selector
-        vm.expectRevert(SuperchainERC721TokenBridge.InvalidTokenOwnership.selector);
+        vm.expectRevert(SuperchainERC721TokenBridge.SuperchainERC721TokenBridge_InvalidTokenOwnership.selector);
 
         // Call the `sendERC721` function with _sender who doesn't own the token
         vm.prank(_sender);
@@ -132,7 +132,7 @@ contract SuperchainERC721TokenBridgeTest is Test {
         assertEq(_msgHash, _returnedMsgHash);
 
         // Check the token was burned (should revert when querying owner)
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         superchainERC721.ownerOf(_tokenId);
     }
 
@@ -177,7 +177,7 @@ contract SuperchainERC721TokenBridgeTest is Test {
         );
 
         // Expect the revert with `InvalidCrossDomainSender` selector
-        vm.expectRevert(SuperchainERC721TokenBridge.InvalidCrossDomainSender.selector);
+        vm.expectRevert(SuperchainERC721TokenBridge.SuperchainERC721TokenBridge_InvalidCrossDomainSender.selector);
 
         // Call the `relayERC721` function with the sender caller
         vm.prank(Predeploys.L2_TO_L2_CROSS_DOMAIN_MESSENGER);

@@ -104,7 +104,7 @@ contract SuperchainERC721Test is Test {
         superchainERC721.crosschainBurn(_from, _tokenId);
 
         // Check the token was burned (should revert when querying owner)
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         superchainERC721.ownerOf(_tokenId);
     }
 
