@@ -24,19 +24,26 @@ interface ISuperchainERC721 is IERC721 {
     /// @custom:semver 1.0.0
     function version() external view returns (string memory);
 
+    /// @notice The name of the token.
     function name() external view returns (string memory);
 
-    function setApprovalForAll(address operator, bool approved) external;
-
-    function getApproved(uint256 tokenId) external view returns (address);
-
+    /// @notice The symbol of the token.
     function symbol() external view returns (string memory);
 
+    /// @notice The URI for a given token
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+
+    /// @inheritdoc IERC721
+    function setApprovalForAll(address operator, bool approved) external;
+
+    /// @inheritdoc IERC721
+    function getApproved(uint256 tokenId) external view returns (address);
+
+    /// @inheritdoc IERC721
     function balanceOf(address owner) external view returns (uint256);
 
+    /// @inheritdoc IERC721
     function ownerOf(uint256 tokenId) external view returns (address);
-
-    function tokenURI(uint256 tokenId) external view returns (string memory);
 
     /// @notice Mints a token to a given address. Only callable by the bridge.
     /// @param _to The address to mint the token to.
